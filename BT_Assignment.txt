@@ -1,0 +1,92 @@
+//SPDX-License-Identifier:MIT
+pragma solidity ^0.8.0;
+
+contract Student_management{
+
+	struct Student{
+		int stud_id;
+		string Name;
+		string Department;
+	}
+
+	Student[] Students;
+
+	function add_stud(int stud_id, string memory Name, string memory Department) public{
+		Student memory stud = Student(stud_id, Name, Department);
+		Students.push(stud);
+	}
+
+	function getStudent(int stud_id) public view returns(string memory, string memory){
+		for(uint i = 0; i < Students.length; i++){
+			Student memory stud = Students[i];
+			if(stud.stud_id == stud_id){
+				return(stud.Name, stud.Department);
+			}
+		}
+        return("Name Not Found", "Department Not Found");
+	}
+   function Delete(uint id) public {
+    for(uint i = 0; i < Students.length; i++) {
+        if(uint(Students[i].stud_id) == id) {
+            delete Students[i];
+        }
+    }
+  }
+
+     function update(int id,string memory name) public
+    {
+       for(uint i=0;i<Students.length;i++)
+        {
+              if(Students[i].stud_id==id)
+              Students[i].Name=name;
+        }
+     }
+
+	//Fallback Function
+	fallback() external payable{
+		Students.push(Student(7, "XYZ", "Mechanical"));
+	}
+    receive() external payable {
+        // Log the received Ether with the sender's address
+        //emit EtherReceived(msg.sender, msg.value);
+    }
+}
+
+
+//SPDX-License-Identifier:MIT
+pragma solidity ^0.8.0;
+contract Banking
+{
+    mapping(address=>uint) public user_acc;
+    mapping(address=>bool) public exits_acc;
+    function create_acc() public payable returns(string memory)
+    {
+        require(exits_acc[msg.sender]==false,"Account already created");
+        user_acc[msg.sender]=msg.value;
+        exits_acc[msg.sender]=true;
+        return "Account Created Successfully";
+    }
+    function deposit(uint amount) public payable returns(string memory)
+    {
+      require(exits_acc[msg.sender]==true,"Account not exists");
+      require(amount>0,"Amount must be greater than zero");
+      user_acc[msg.sender]+=amount;
+      return "Amount Deposited Successfully";
+    }
+    function withdraw(uint amount) public payable returns(string memory)
+    {
+      require(exits_acc[msg.sender]==true,"Account not exists");
+      require(amount<=user_acc[msg.sender],"Insufficient balance");
+      require(amount>0,"Amount must be greater than zero");
+      user_acc[msg.sender]-=amount;
+      return "Amount withdraw successfully";
+    }
+    function show_balance() public view returns(uint)
+    {
+        return user_acc[msg.sender];
+    }
+    function account_exists() public view returns(bool)
+    {
+        return exits_acc[msg.sender];
+    }
+}
